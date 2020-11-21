@@ -1,0 +1,196 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>2063</title>
+    <style>
+    #myCanvas {
+        background: #DDDDDD;
+        border-style: solid;
+    }
+
+    #score {
+        font-size: 150%;
+    }
+    </style>
+</head>
+
+<body>
+    <div>Score: <span id="score">0 </span> Radius: <span id="radius">...</span> </div>
+    <canvas id="myCanvas" width="600" height="400">
+        Your browser does not support canvas
+    </canvas>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+    <script>
+    console.clear();
+
+    const canvas = document.getElementById("myCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const bots = [];
+
+    function makeBot(x, y, r, dx, dy, color) {
+        const bot = {};
+        bot.r = r || Math.floor(Math.random() * 20 + 2);
+        bot.x = x || Math.floor(Math.random() * (canvas.width - 2 * bot.r) + bot.r);
+        bot.y = y || Math.floor(Math.random() * (canvas.height - 2 * bot.r) + bot.r);
+        bot.dx = dx || Math.floor(Math.random() * 20 - 10);
+        bot.dy = dy || Math.floor(Math.random() * 20 - 10);
+        //https://css-tricks.com/snippets/javascript/random-hex-color/
+        const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+        bot.color = color || '#' + randomColor;
+        return bot;
+    }
+
+    for (let i = 0; i < 5; i++) {
+        bots.push(makeBot());
+    }
+
+    bots[0].color = "green";
+
+    function drawBot(bot) {
+        if(bot.r <= 0) return;
+        ctx.beginPath();
+        ctx.arc(bot.x, bot.y, bot.r, 0 * Math.PI, 2 * Math.PI);
+        ctx.stroke();
+        ctx.fillStyle = bot.color;
+        ctx.fill();
+        ctx.moveTo(bot.x, bot.y);
+        const theta = Math.atan2(bot.dy, bot.dx);
+        ctx.lineTo(bot.x + bot.r * Math.cos(theta), bot.y + bot.r * Math.sin(theta));
+        ctx.stroke();
+    }
+
+    function drawBots() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < bots.length; i++) {
+            moveBot(bots[i]);
+        }
+        checkCollision();
+        for (let i = 0; i < bots.length; i++) {
+            drawBot(bots[i]);
+        }
+        updateRadius();
+    }
+
+    function updateRadius() {
+        $("#radius").text(bots[0].r);
+    }
+
+    function moveBot(bot) {
+        bot.x = bot.x + bot.dx;
+        bot.y = bot.y + bot.dy;
+        if (bot.y - bot.r < 0) {
+            bot.y = bot.r;
+            bot.dy = -bot.dy;
+            addOne();
+        }
+
+        if (bot.x - bot.r < 0) {
+            bot.x = bot.r
+            bot.dx = -bot.dx;
+        }
+
+        if (bot.x + bot.r >= canvas.width) {
+            bot.x = canvas.width - bot.r;
+            bot.dx = -bot.dx;
+        }
+
+        if (bot.y + bot.r >= canvas.height) {
+            bot.y = canvas.height - bot.r;
+            bot.dy = -bot.dy;
+        }
+    }
+
+    function checkCollision() {
+
+        for (let i = 0; i < bots.length; i++) {
+            for (let j = 0; j < bots.length; j++) {
+                if(i==j) continue; //If the same bot, check next
+                let deltax = bots[i].x - bots[j].x
+                let deltay = bots[i].y - bots[j].y
+
+                let sumr = bots[i].r + bots[j].r
+
+                let distance = Math.sqrt(deltax * deltax + deltay * deltay);
+                if ((distance - sumr)<0) {
+                   // console.log("collide", i, j)
+                    bots[i].dx = -bots[i].dx
+                    bots[i].dy = -bots[i].dy
+                    bots[j].dx = -bots[j].dx
+                    bots[j].dy = -bots[j].dy
+                    let diff = bots[i].r - bots[j].r;
+                    if(diff > 0){
+                        bots[i].r += 1;
+                        bots[j].r -= 1;
+                    } else
+                    {
+                        bots[j].r += 1;
+                        bots[i].r -= 1;
+                    }
+                }
+            }
+        }
+    }
+
+
+    function addOne() {
+        var score = $("#score").text();
+        $("#score").text(Number(score) + 1)
+    }
+    setInterval(drawBots, 100, bots[0]);
+
+    $("body").keydown(onKeyDown);
+
+    function onKeyDown(e) {
+        e.preventDefault();
+
+        if (e.key == " ") {
+            bots[0].dx = 0;
+            bots[0].dy = 0;
+        }
+
+        if (e.key == "ArrowUp") {
+            bots[0].dy = bots[0].dy - 1;
+        }
+
+        if (e.key == "ArrowDown") {
+            bots[0].dy = bots[0].dy + 1;
+        }
+
+        if (e.key == "ArrowLeft") {
+            bots[0].dx = bots[0].dx - 1;
+        }
+
+        if (e.key == "ArrowRight") {
+            bots[0].dy = bots[0].dy - 1;
+        }
+
+        if (e.key == "w") {
+            bots[0].y = bots[0].y - 4;
+        }
+
+         if (e.key == "s") {
+            bots[0].y = bots[0].y + 4;
+        }
+         if (e.key == "a") {
+            bots[0].x = bots[0].x - 4;
+        }
+         if (e.key == "d") {
+            bots[0].x = bots[0].x + 4;
+        }
+
+
+
+        if (e.key == "]") {
+            bots[0].r = bots[0].r + 2;
+        }
+
+    }
+    </script>
+</body>
+
+</html>

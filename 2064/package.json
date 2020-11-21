@@ -1,0 +1,20 @@
+{
+  "name": "2064",
+  "version": "0.0.1",
+  "description": "learn express and node",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node index.js"
+  },
+  "keywords": [
+    "learn",
+    "express",
+    "seattleacademy"
+  ],
+  "author": "Alex Brown",
+  "license": "MIT"
+}

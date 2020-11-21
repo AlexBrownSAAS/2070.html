@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Game Polling</title>
+    </style>
+</head>
+
+<body>
+    <h1>Game Polling</h1>
+    <button id="up">upward</button>
+    <button id="down">downward</button>
+    <div id="counter">0</div>
+    <div id="sensors">0</div>
+    <script>
+    const url = "https://math.seattleacademy.org/1500/phone";
+    const counter = document.getElementById('counter');
+    const sensorDiv = document.getElementById('sensors');
+    //  writeCounter = str => counter.textContent = str;
+    //writeSensors = str => sensorDiv.textContent = str;
+
+    function writeCounter(str) {
+        counter.textContent = str;
+    }
+
+    function writeSensors(str) {
+        sensorDiv.textContent = JSON.stringify(str);
+    }
+
+    async function getSensors() {
+        const response = await fetch(url);
+        const myJson = await response.json();
+        writeCounter(myJson.counter);
+        writeSensors(myJson);
+    }
+
+    getSensors();
+
+    document.getElementById('up').addEventListener('click',moveUp);
+    function moveUp(evt){
+    	console.log('moveUp');
+    	fetch(url + "?up=true");
+        getSensors();
+
+    }
+
+    document.getElementById('down').addEventListener('click',moveDown);
+    function moveDown(evt){
+        console.log('moveDown');
+        fetch(url + "?up=false");
+        getSensors();
+    }
+    </script>
+</body>
+
+</html>
